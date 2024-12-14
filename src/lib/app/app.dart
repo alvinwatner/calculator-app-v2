@@ -3,7 +3,7 @@ import 'package:scientific_calc/ui/dialogs/info_alert/info_alert_dialog.dart';
 import 'package:scientific_calc/features/home/home_view.dart';
 import 'package:scientific_calc/features/startup/startup_view.dart';
 import 'package:scientific_calc/services/calculator_service.dart';
-import 'package:scientific_calc/features/home/calculator_repository.dart';
+import 'package:scientific_calc/repositories/calculator_repository.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -17,8 +17,7 @@ import 'package:stacked_services/stacked_services.dart';
     LazySingleton(classType: DialogService),
     LazySingleton(classType: NavigationService),
     LazySingleton(classType: CalculatorService),
-    LazySingleton(
-        classType: CalculatorRepository, dependsOn: {CalculatorService}),
+    LazySingleton(classType: CalculatorRepository),
   ],
   bottomsheets: [
     StackedBottomsheet(classType: NoticeSheet),
