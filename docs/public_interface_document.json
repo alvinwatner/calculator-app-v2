@@ -1,7 +1,7 @@
 {
   "package_name": "com.steve.scientific_calc",
-  "project_description": "A Flutter project using the Stacked architecture, featuring routing, dependency injection, and dialog/bottom sheet management.",
-  "architecture_overview": "The application follows the Stacked architecture with separate folders for app setup, features, UI components, and utilities. It uses Stacked for state management, routing, and dependency injection.",
+  "project_description": "The Flutter application is a scientific calculator that follows the Stacked architecture. It provides a range of features, including basic arithmetic operations, scientific functions, and advanced calculations like factorials and exponents. The application also includes a navigation system, dialog and bottom sheet management, and a custom UI theme.",
+  "architecture_overview": "The application is structured using the Stacked architecture, which separates the concerns of the UI, view models, and services. The app.dart file sets up the application structure, including routes, dependencies, bottom sheets, and dialogs. The features folder contains the main views (HomeView and StartupView) and their corresponding view models. The ui folder houses reusable UI components, such as the calculator display, buttons, and key pads. The services folder provides the core calculation functionality through the CalculatorService, and the repositories folder acts as a mediator between the UI and the service layer.",
   "files": [
     {
       "name": "lib/app/app.dart",
@@ -113,6 +113,628 @@
         "package:my_app/app/app.locator.dart",
         "package:my_app/features/app/app_view.dart"
       ]
+    },
+    {
+      "name": "lib/ui/dialogs/info_alert/info_alert_dialog_model.dart",
+      "description": "This Dart file defines the `InfoAlertDialogModel` class, which is responsible for managing the state and behavior of an information alert dialog in a Flutter application.",
+      "class_diagram": "@startuml\n\nclass InfoAlertDialogModel extends BaseViewModel {\n\n}\n\n@enduml",
+      "methods": [],
+      "dependencies": [
+        "package:stacked/stacked.dart"
+      ]
+    },
+    {
+      "name": "lib/app/app.locator.dart",
+      "description": "This file is responsible for setting up and managing the dependency injection (DI) system using the Stacked architecture pattern. It is a generated file that is used to register and resolve dependencies across the application.",
+      "class_diagram": "",
+      "methods": [
+        {
+          "name": "setupLocator",
+          "description": "This method is responsible for registering the necessary dependencies, including the BottomSheetService, DialogService, and NavigationService. It also allows for registering custom environments and environment filters.",
+          "parameters": [
+            "environment",
+            "environmentFilter"
+          ],
+          "return_type": "Future<void>"
+        }
+      ],
+      "dependencies": [
+        "stacked_services/src/bottom_sheet/bottom_sheet_service.dart",
+        "stacked_services/src/dialog/dialog_service.dart",
+        "stacked_services/src/navigation/navigation_service.dart",
+        "stacked_shared/stacked_shared.dart"
+      ]
+    },
+    {
+      "name": "lib/app/app.dialogs.dart",
+      "description": "This file is responsible for setting up and managing the dialog system in the Flutter application. It defines the available dialog types, registers custom dialog builders, and provides a centralized interface for displaying different types of dialogs.",
+      "class_diagram": "@startuml\n'- Classes -'\nclass DialogType {\n    + infoAlert\n}\n\nclass DialogBuilder {\n    + (context, request, completer) => InfoAlertDialog(request, completer)\n}\n\nclass DialogService {\n    + registerCustomDialogBuilders(builders)\n}\n\n'- Associations -'\nDialogType ..> DialogBuilder\nDialogService o-- DialogBuilder\n\n@enduml",
+      "methods": [
+        {
+          "name": "setupDialogUi",
+          "description": "Initializes the dialog service and registers custom dialog builders for the available dialog types.",
+          "parameters": null,
+          "return_type": "void"
+        }
+      ],
+      "dependencies": [
+        "stacked_services/stacked_services.dart",
+        "app/app.locator.dart",
+        "ui/dialogs/info_alert/info_alert_dialog.dart"
+      ]
+    },
+    {
+      "name": "lib/app/app.bottomsheets.dart",
+      "description": "This Dart file is responsible for setting up the bottom sheet UI in the application. It defines the available bottom sheet types and registers custom bottom sheet builders with the BottomSheetService from the stacked_services package.",
+      "class_diagram": "@startuml\n\nclass BottomSheetService {\n  +setCustomSheetBuilders(builders: Map<BottomSheetType, SheetBuilder>)\n}\n\nclass NoticeSheet {\n  +NoticeSheet({required this.request, required this.completer})\n}\n\nBottomSheetService <-- BottomSheetType\nBottomSheetType <-- NoticeSheet\n\n@enduml",
+      "methods": [
+        {
+          "name": "setupBottomSheetUi",
+          "description": "Configures the BottomSheetService with custom bottom sheet builders for each BottomSheetType.",
+          "parameters": null,
+          "return_type": "void"
+        }
+      ],
+      "dependencies": [
+        "stacked_services/stacked_services.dart",
+        "app/app.locator.dart",
+        "ui/bottom_sheets/notice/notice_sheet.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/widgets/calculator_display.dart",
+      "description": "The `CalculatorDisplay` widget is responsible for rendering the user interface of the calculator's display. It shows the current expression being calculated and the result, handling cases where an error has occurred.",
+      "class_diagram": "@startuml\nclass CalculatorDisplay {\n  + String expression\n  + String result\n  + bool isError\n  + build(BuildContext): Widget\n}\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Builds the UI for the calculator display, including the expression and result.",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "package:scientific_calc/ui/themes/calculator_theme.dart"
+      ]
+    },
+    {
+      "name": "lib/services/calculator_service.dart",
+      "description": "The CalculatorService class is responsible for providing the core calculation functionality for a scientific calculator application. It handles the parsing, evaluation, and formatting of mathematical expressions to deliver accurate calculation results to the user interface.",
+      "class_diagram": "@startuml\nclass CalculatorService {\n  + calculate(expression: String): CalculationResult\n  + isValidExpression(expression: String): boolean\n}\nCalculatorService --> CalculationResult\nCalculatorService --> CalculatorUtils\nCalculatorService --> MathOperations\n@enduml",
+      "methods": [
+        {
+          "name": "calculate",
+          "description": "Calculates the result of the provided mathematical expression. It sanitizes the expression, evaluates it using the MathOperations class, and returns a CalculationResult object with the formatted expression and result.",
+          "parameters": [
+            "expression: String"
+          ],
+          "return_type": "CalculationResult"
+        },
+        {
+          "name": "isValidExpression",
+          "description": "Checks if the provided mathematical expression is valid and can be evaluated without errors. It sanitizes the expression and attempts to evaluate it using the MathOperations class.",
+          "parameters": [
+            "expression: String"
+          ],
+          "return_type": "boolean"
+        }
+      ],
+      "dependencies": [
+        "lib/models/calculation_result.dart",
+        "lib/utils/calculator_utils.dart",
+        "lib/utils/math_operations.dart"
+      ]
+    },
+    {
+      "name": "lib/models/calculation_result.dart",
+      "description": "This file defines a CalculationResult class that represents the result of a mathematical calculation, including the expression, the calculated result, and whether an error occurred during the calculation.",
+      "class_diagram": "@startuml\nclass CalculationResult {\n  +String expression\n  +String result\n  +bool isError\n  +CalculationResult.empty()\n  +CalculationResult.error(String message)\n  +CalculationResult copyWith({String? expression, String? result, bool? isError})\n}\n@enduml",
+      "methods": [
+        {
+          "name": "CalculationResult.empty()",
+          "description": "Factory constructor that creates an empty CalculationResult instance with an empty expression, a default result of '0', and no error.",
+          "parameters": null,
+          "return_type": "CalculationResult"
+        },
+        {
+          "name": "CalculationResult.error(String message)",
+          "description": "Factory constructor that creates a CalculationResult instance representing an error, with an empty expression and the provided error message as the result.",
+          "parameters": [
+            "message"
+          ],
+          "return_type": "CalculationResult"
+        },
+        {
+          "name": "copyWith",
+          "description": "Returns a new CalculationResult instance with the provided updates to the expression, result, and/or error status.",
+          "parameters": [
+            "expression",
+            "result",
+            "isError"
+          ],
+          "return_type": "CalculationResult"
+        }
+      ],
+      "dependencies": [
+        "package:equatable/equatable.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/common/app_colors.dart",
+      "description": "This file defines a set of constant color values that are used throughout the application's UI. It serves as a centralized location to manage and reuse the app's color palette, promoting consistency and maintainability.",
+      "class_diagram": "",
+      "methods": [],
+      "dependencies": [
+        "package:flutter/material.dart"
+      ]
+    },
+    {
+      "name": "lib/utils/math_operations.dart",
+      "description": "This Dart file provides a utility class `MathOperations` that can evaluate mathematical expressions, including basic arithmetic operations, scientific functions, and advanced operations like factorials and exponents. This class aims to simplify the process of performing complex mathematical calculations within the application, making it easier to integrate such functionality into various parts of the system.",
+      "class_diagram": "@startuml\nclass MathOperations {\n  +static double evaluate(String expression)\n  +static int factorial(int n)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "evaluate",
+          "description": "Evaluates a given mathematical expression as a string and returns the result as a double.",
+          "parameters": [
+            "expression"
+          ],
+          "return_type": "double"
+        },
+        {
+          "name": "factorial",
+          "description": "Calculates the factorial of a given integer.",
+          "parameters": [
+            "n"
+          ],
+          "return_type": "int"
+        }
+      ],
+      "dependencies": [
+        "dart:math"
+      ]
+    },
+    {
+      "name": "lib/repositories/calculator_repository.dart",
+      "description": "The CalculatorRepository is responsible for providing a centralized interface for performing mathematical calculations within the application. It acts as a mediator between the user interface and the underlying CalculatorService, allowing the application to perform various calculations without directly interacting with the service layer.",
+      "class_diagram": "@startuml\nclass CalculatorRepository {\n  +calculate(expression: String): CalculationResult\n  +isValidExpression(expression: String): bool\n}\n\nCalculatorRepository o-- CalculatorService\n@enduml",
+      "methods": [
+        {
+          "name": "calculate",
+          "description": "Calculates the result of the provided mathematical expression using the CalculatorService.",
+          "parameters": [
+            "expression: String"
+          ],
+          "return_type": "CalculationResult"
+        },
+        {
+          "name": "isValidExpression",
+          "description": "Checks if the provided expression is a valid mathematical expression that can be processed by the CalculatorService.",
+          "parameters": [
+            "expression: String"
+          ],
+          "return_type": "bool"
+        }
+      ],
+      "dependencies": [
+        "stacked/stacked.dart",
+        "../services/calculator_service.dart",
+        "../app/app.locator.dart",
+        "../models/calculation_result.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/bottom_sheets/notice/notice_sheet.dart",
+      "description": "This file defines the `NoticeSheet` class, which is responsible for displaying a bottom sheet with a notice or alert message. It provides a simple, reusable UI component for showing important information to the user.",
+      "class_diagram": "@startuml\nclass NoticeSheet extends StackedView<NoticeSheetModel> {\n  +NoticeSheet({required completer, required request, Key? key})\n  +Widget builder(BuildContext, NoticeSheetModel, Widget?)\n  +NoticeSheetModel viewModelBuilder(BuildContext)\n}\n\nclass NoticeSheetModel {\n}\n@enduml",
+      "methods": [
+        {
+          "name": "NoticeSheet",
+          "description": "Constructor for the `NoticeSheet` widget. Requires a `completer` function and a `request` object, which contain the necessary information to display the notice.",
+          "parameters": [
+            "completer",
+            "request"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "builder",
+          "description": "The `builder` method is responsible for constructing the UI of the `NoticeSheet` widget. It takes the current `BuildContext`, the `NoticeSheetModel` view model, and an optional child widget as parameters.",
+          "parameters": [
+            "BuildContext",
+            "NoticeSheetModel",
+            "Widget?"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "viewModelBuilder",
+          "description": "The `viewModelBuilder` method is responsible for creating an instance of the `NoticeSheetModel` view model, which is used to manage the state and logic of the `NoticeSheet` widget.",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "NoticeSheetModel"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "stacked/stacked.dart",
+        "stacked_services/stacked_services.dart",
+        "scientific_calc/ui/bottom_sheets/notice/notice_sheet_model.dart",
+        "scientific_calc/ui/common/app_colors.dart",
+        "scientific_calc/ui/common/ui_helpers.dart"
+      ]
+    },
+    {
+      "name": "lib/app/app.router.dart",
+      "description": "This Dart file is responsible for managing the navigation and routing within the Flutter application. It defines the available routes, maps them to their corresponding view widgets, and provides utility methods to navigate between these views.",
+      "class_diagram": "@startuml\nclass StackedRouter {\n  + _routes: List<RouteDef>\n  + _pagesMap: Map<Type, StackedRouteFactory>\n  + routes(): List<RouteDef>\n  + pagesMap(): Map<Type, StackedRouteFactory>\n}\n\nclass Routes {\n  + homeView: String\n  + startupView: String\n  + all: Set<String>\n}\n\nStackedRouter *-- Routes\n\ninterface _i1.RouterBase {\n  + routes(): List<RouteDef>\n  + pagesMap(): Map<Type, StackedRouteFactory>\n}\n\n_i1.RouterBase <|-- StackedRouter\n\nclass _i2.HomeView\nclass _i3.StartupView\n\n_pagesMap --> _i2.HomeView\n_pagesMap --> _i3.StartupView\n@enduml",
+      "methods": [
+        {
+          "name": "navigateToHomeView",
+          "description": "Navigates to the HomeView screen",
+          "parameters": [
+            "routerId",
+            "preventDuplicates",
+            "parameters",
+            "transition"
+          ],
+          "return_type": "Future<dynamic>"
+        },
+        {
+          "name": "navigateToStartupView",
+          "description": "Navigates to the StartupView screen",
+          "parameters": [
+            "routerId",
+            "preventDuplicates",
+            "parameters",
+            "transition"
+          ],
+          "return_type": "Future<dynamic>"
+        },
+        {
+          "name": "replaceWithHomeView",
+          "description": "Replaces the current screen with the HomeView screen",
+          "parameters": [
+            "routerId",
+            "preventDuplicates",
+            "parameters",
+            "transition"
+          ],
+          "return_type": "Future<dynamic>"
+        },
+        {
+          "name": "replaceWithStartupView",
+          "description": "Replaces the current screen with the StartupView screen",
+          "parameters": [
+            "routerId",
+            "preventDuplicates",
+            "parameters",
+            "transition"
+          ],
+          "return_type": "Future<dynamic>"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "scientific_calc/features/home/home_view.dart",
+        "scientific_calc/features/startup/startup_view.dart",
+        "stacked/stacked.dart",
+        "stacked_services/stacked_services.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/bottom_sheets/notice/notice_sheet_model.dart",
+      "description": "The NoticeSheetModel class is responsible for managing the state and behavior of a notice sheet UI component within a Flutter application. It provides the underlying logic and data handling for the notice sheet, which is likely used to display important messages or alerts to the user.",
+      "class_diagram": "@startuml\nclass NoticeSheetModel extends BaseViewModel {\n}\n@enduml",
+      "methods": [
+        {
+          "name": "NoticeSheetModel",
+          "description": "The constructor for the NoticeSheetModel class.",
+          "parameters": null,
+          "return_type": null
+        }
+      ],
+      "dependencies": [
+        "package:stacked/stacked.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/themes/calculator_theme.dart",
+      "description": "This Dart file defines the theme and styles for a calculator UI in a Flutter application. It provides a centralized location for managing the color scheme, typography, and button styles used throughout the calculator interface.",
+      "class_diagram": "@startuml\nclass CalculatorTheme {\n  +static final Color primaryColor\n  +static final Color secondaryColor\n  +static final Color backgroundColor\n  +static final Color displayColor\n  +static final Color operatorColor\n  +static final Color functionColor\n  +static final Color numberColor\n  +static final Color textColor\n  +static final Color errorColor\n  +static final TextStyle displayTextStyle\n  +static final TextStyle expressionTextStyle\n  +static final TextStyle buttonTextStyle\n  +static final TextStyle functionButtonTextStyle\n  +static final ButtonStyle calculatorButtonStyle\n}\n@enduml",
+      "methods": [
+        {
+          "name": "CalculatorTheme",
+          "description": "This is a static class that provides a centralized location for defining the color scheme, typography, and button styles used in the calculator UI.",
+          "parameters": null,
+          "return_type": null
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart"
+      ]
+    },
+    {
+      "name": "lib/utils/calculator_utils.dart",
+      "description": "The `CalculatorUtils` class provides a set of utility functions for working with mathematical expressions and calculations in a Flutter/Dart application. It handles common operations such as detecting operators and functions, formatting numbers, sanitizing and beautifying expressions, and more. This utility class helps simplify the implementation of a calculator or similar mathematical processing functionality in the application.",
+      "class_diagram": "@startuml\nclass CalculatorUtils {\n  +static bool isOperator(String value)\n  +static bool isFunction(String value)\n  +static String formatNumber(double number)\n  +static String sanitizeExpression(String expression)\n  +static bool isScientificOperator(String value)\n  +static String beautifyExpression(String expression)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "isOperator",
+          "description": "Checks if the given string value is a valid mathematical operator (+, -, \u00d7, \u00f7, ^, %).",
+          "parameters": [
+            "String value"
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "isFunction",
+          "description": "Checks if the given string value is a valid mathematical function (sin, cos, tan, log, ln, \u221a, !).",
+          "parameters": [
+            "String value"
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "formatNumber",
+          "description": "Formats a given double number to a string, removing decimal places if the number is an integer.",
+          "parameters": [
+            "double number"
+          ],
+          "return_type": "String"
+        },
+        {
+          "name": "sanitizeExpression",
+          "description": "Replaces special characters in a mathematical expression with their corresponding symbols (\u00d7, \u00f7, \u03c0, \u221a).",
+          "parameters": [
+            "String expression"
+          ],
+          "return_type": "String"
+        },
+        {
+          "name": "isScientificOperator",
+          "description": "Checks if the given string value is a valid scientific operator (sin, cos, tan, log, ln, \u221a, \u03c0, !, ^).",
+          "parameters": [
+            "String value"
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "beautifyExpression",
+          "description": "Replaces mathematical symbols in an expression with their human-readable counterparts (\u00d7, \u00f7, \u03c0, \u221a).",
+          "parameters": [
+            "String expression"
+          ],
+          "return_type": "String"
+        }
+      ],
+      "dependencies": [
+        "dart:core"
+      ]
+    },
+    {
+      "name": "lib/features/app/app_viewmodel.dart",
+      "description": "The `AppViewModel` class is a base view model that serves as the foundation for other view models in the application. It provides a common set of functionality and state management capabilities that can be inherited by other view models, promoting code reuse and consistency across the application.",
+      "class_diagram": "@startuml\nclass AppViewModel extends BaseViewModel {\n}\n@enduml",
+      "methods": [],
+      "dependencies": [
+        "package:stacked/stacked.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/widgets/calculator_button.dart",
+      "description": "The `CalculatorButton` widget is responsible for rendering a customizable button for a calculator UI. It provides a consistent and reusable button component that can be used throughout the calculator application.",
+      "class_diagram": "@startuml\nclass CalculatorButton {\n  -String text\n  -VoidCallback onPressed\n  -Color? backgroundColor\n  -bool isWide\n  -TextStyle? textStyle\n  +Widget build(BuildContext context)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Builds the `CalculatorButton` widget, which is a customizable button with optional background color, width, and text style.",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "package:scientific_calc/ui/themes/calculator_theme.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/common/ui_helpers.dart",
+      "description": "This Dart file provides a set of utility functions and widgets that help with the layout and styling of Flutter UI components. It is a common library used across the application to ensure consistent spacing, sizing, and responsive design.",
+      "class_diagram": "@startuml\nclass UIHelpers {\n  + static const double _tinySize\n  + static const double _smallSize\n  + static const double _mediumSize\n  + static const double _largeSize\n  + static const double _massiveSize\n\n  + static const Widget horizontalSpaceTiny\n  + static const Widget horizontalSpaceSmall\n  + static const Widget horizontalSpaceMedium\n  + static const Widget horizontalSpaceLarge\n\n  + static const Widget verticalSpaceTiny\n  + static const Widget verticalSpaceSmall\n  + static const Widget verticalSpaceMedium\n  + static const Widget verticalSpaceLarge\n  + static const Widget verticalSpaceMassive\n\n  + static Widget spacedDivider\n  + static Widget verticalSpace(double height)\n  + static double screenWidth(BuildContext context)\n  + static double screenHeight(BuildContext context)\n  + static double screenHeightFraction(BuildContext context, {int dividedBy = 1, double offsetBy = 0, double max = 3000})\n  + static double screenWidthFraction(BuildContext context, {int dividedBy = 1, double offsetBy = 0, double max = 3000})\n  + static double halfScreenWidth(BuildContext context)\n  + static double thirdScreenWidth(BuildContext context)\n  + static double quarterScreenWidth(BuildContext context)\n  + static double getResponsiveHorizontalSpaceMedium(BuildContext context)\n  + static double getResponsiveSmallFontSize(BuildContext context)\n  + static double getResponsiveMediumFontSize(BuildContext context)\n  + static double getResponsiveLargeFontSize(BuildContext context)\n  + static double getResponsiveExtraLargeFontSize(BuildContext context)\n  + static double getResponsiveMassiveFontSize(BuildContext context)\n  + static double getResponsiveFontSize(BuildContext context, {double? fontSize, double? max})\n}\n@enduml",
+      "methods": [
+        {
+          "name": "horizontalSpaceTiny",
+          "description": "A constant widget that provides a small horizontal spacing of 5 units.",
+          "parameters": null,
+          "return_type": "Widget"
+        },
+        {
+          "name": "screenWidth",
+          "description": "Returns the current screen width in logical pixels.",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "double"
+        },
+        {
+          "name": "screenHeightFraction",
+          "description": "Returns a fraction of the current screen height, optionally with an offset and a maximum value.",
+          "parameters": [
+            "BuildContext context",
+            "int dividedBy = 1",
+            "double offsetBy = 0",
+            "double max = 3000"
+          ],
+          "return_type": "double"
+        },
+        {
+          "name": "getResponsiveHorizontalSpaceMedium",
+          "description": "Returns a responsive horizontal spacing value based on the screen width.",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "double"
+        },
+        {
+          "name": "getResponsiveFontSize",
+          "description": "Returns a responsive font size based on the screen width, with optional min and max values.",
+          "parameters": [
+            "BuildContext context",
+            "double? fontSize",
+            "double? max"
+          ],
+          "return_type": "double"
+        }
+      ],
+      "dependencies": [
+        "dart:math",
+        "package:flutter/material.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/calculator_repository.dart",
+      "description": "The CalculatorRepository class is responsible for providing a centralized interface for performing mathematical calculations and validating expressions. It acts as a bridge between the application's user interface and the underlying CalculatorService, ensuring a consistent and reliable way to handle calculation-related functionality.",
+      "class_diagram": "@startuml\nclass CalculatorRepository {\n  -CalculatorService _calculatorService\n  +calculate(String expression): CalculationResult\n  +isValidExpression(String expression): bool\n}\n\nCalculatorRepository o-- CalculatorService\n@enduml",
+      "methods": [
+        {
+          "name": "calculate",
+          "description": "Performs a mathematical calculation based on the provided expression and returns the result as a CalculationResult object.",
+          "parameters": [
+            "String expression"
+          ],
+          "return_type": "CalculationResult"
+        },
+        {
+          "name": "isValidExpression",
+          "description": "Checks if the given expression is a valid mathematical expression that can be processed by the CalculatorService.",
+          "parameters": [
+            "String expression"
+          ],
+          "return_type": "bool"
+        }
+      ],
+      "dependencies": [
+        "scientific_calc/models/calculation_result.dart",
+        "scientific_calc/services/calculator_service.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/widgets/calculator_keypad.dart",
+      "description": "This Dart file defines the `CalculatorKeypad` widget, which is responsible for rendering the keypad of a calculator UI in a Flutter application. It provides a reusable component that can display either a basic or a scientific calculator keypad based on the `showScientific` parameter.",
+      "class_diagram": "@startuml\nclass CalculatorKeypad {\n  -Function(String) onButtonPressed\n  -bool showScientific\n  +build(BuildContext): Widget\n}\n\nCalculatorKeypad o-- BasicKeypad\nCalculatorKeypad o-- ScientificKeypad\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Builds the widget tree for the calculator keypad, which includes either a BasicKeypad or a ScientificKeypad based on the `showScientific` parameter.",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "lib/features/home/widgets/basic_keypad.dart",
+        "lib/features/home/widgets/scientific_keypad.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/widgets/scientific_keypad.dart",
+      "description": "The ScientificKeypad widget is responsible for rendering the specialized scientific calculator keypad, providing users with access to various mathematical functions and operations. It serves as a key component in the overall calculator application, allowing users to perform advanced calculations beyond basic arithmetic.",
+      "class_diagram": "@startuml\nclass ScientificKeypad {\n  +onButtonPressed(String)\n}\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Constructs the visual representation of the scientific keypad, including rows of buttons for trigonometric functions, logarithms, square root, exponents, and other specialized mathematical operations.",
+          "parameters": [
+            "BuildContext"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "onButtonPressed",
+          "description": "Handles the user's interaction with the keypad buttons, emitting the corresponding button text to the parent component for processing and displaying the calculation.",
+          "parameters": [
+            "String"
+          ],
+          "return_type": null
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "package:scientific_calc/features/home/widgets/calculator_button.dart",
+        "package:scientific_calc/ui/themes/calculator_theme.dart"
+      ]
+    },
+    {
+      "name": "lib/features/home/widgets/basic_keypad.dart",
+      "description": "The `BasicKeypad` class is responsible for rendering the basic calculator keypad, including the numeric keys, operator keys, and function keys. It provides the UI and input handling for the calculator's core functionality.",
+      "class_diagram": "@startuml\nclass BasicKeypad {\n  -Function(String) onButtonPressed\n  +build(context: BuildContext): Widget\n}\n\nclass CalculatorButton {\n  +text: String\n  +onPressed: VoidCallback\n  +backgroundColor: Color\n  +isWide: bool\n  +build(context: BuildContext): Widget\n}\nBasicKeypad o-- CalculatorButton\n@enduml",
+      "methods": [
+        {
+          "name": "build",
+          "description": "Builds the UI for the basic calculator keypad, consisting of rows of calculator buttons.",
+          "parameters": [
+            "context: BuildContext"
+          ],
+          "return_type": "Widget"
+        }
+      ],
+      "dependencies": [
+        "flutter/material.dart",
+        "scientific_calc/features/home/widgets/calculator_button.dart",
+        "scientific_calc/ui/themes/calculator_theme.dart"
+      ]
+    },
+    {
+      "name": "lib/ui/dialogs/info_alert/info_alert_dialog.dart",
+      "description": "This file contains the implementation of the `InfoAlertDialog` class, which is responsible for displaying an information alert dialog in the application. The dialog is used to provide users with important information or notifications, and it can be customized with a title, description, and a graphic icon.",
+      "class_diagram": "@startuml\nclass InfoAlertDialog {\n  +InfoAlertDialog({required request, required completer, Key? key})\n  +Widget builder(BuildContext context, InfoAlertDialogModel viewModel, Widget? child)\n  +InfoAlertDialogModel viewModelBuilder(BuildContext context)\n}\n\nclass InfoAlertDialogModel {\n}\n",
+      "methods": [
+        {
+          "name": "InfoAlertDialog",
+          "description": "The constructor for the `InfoAlertDialog` class. It takes in a `DialogRequest` object, a `completer` function, and an optional `Key`.",
+          "parameters": [
+            "request",
+            "completer",
+            "Key? key"
+          ],
+          "return_type": null
+        },
+        {
+          "name": "builder",
+          "description": "This method is responsible for building the UI of the `InfoAlertDialog`. It takes in the `BuildContext`, the `InfoAlertDialogModel` instance, and an optional `Widget` child, and returns the final `Widget` to be displayed.",
+          "parameters": [
+            "BuildContext context",
+            "InfoAlertDialogModel viewModel",
+            "Widget? child"
+          ],
+          "return_type": "Widget"
+        },
+        {
+          "name": "viewModelBuilder",
+          "description": "This method returns a new instance of the `InfoAlertDialogModel` class, which is used to manage the state and logic of the dialog.",
+          "parameters": [
+            "BuildContext context"
+          ],
+          "return_type": "InfoAlertDialogModel"
+        }
+      ],
+      "dependencies": [
+        "package:flutter/material.dart",
+        "package:stacked/stacked.dart",
+        "package:stacked_services/stacked_services.dart",
+        "package:scientific_calc/ui/common/app_colors.dart",
+        "package:scientific_calc/ui/common/ui_helpers.dart",
+        "package:scientific_calc/ui/dialogs/info_alert/info_alert_dialog_model.dart"
+      ]
     }
   ],
   "dependencies": [
@@ -137,7 +759,7 @@
       "purpose": "Creating gaps in layouts"
     }
   ],
-  "sequence_diagram": "@startuml\nactor User\nparticipant main\nparticipant AppView\nparticipant StartupView\nparticipant StartupViewModel\nparticipant HomeView\nparticipant HomeViewModel\n\nUser -> main: Launch app\nmain -> AppView: Create and run\nAppView -> StartupView: Initialize\nStartupView -> StartupViewModel: Run startup logic\nStartupViewModel -> HomeView: Navigate on completion\nHomeView -> HomeViewModel: Initialize\nUser -> HomeView: Interact\nHomeView -> HomeViewModel: Handle user actions\nHomeViewModel -> HomeView: Update UI\nHomeViewModel -> DialogService: Show dialog\nHomeViewModel -> BottomSheetService: Show bottom sheet\n@enduml",
-  "state_management_flow": "State is managed using the Stacked architecture. ViewModels (e.g., HomeViewModel, StartupViewModel) handle the business logic and state for their respective views. The app.locator.dart file sets up dependency injection, while app.router.dart manages navigation between views.",
-  "navigation_flow": "The application starts with main.dart, which sets up the app and runs AppView. AppView initializes the Stacked architecture and shows the StartupView. After completing initialization logic, it navigates to the HomeView. Navigation between views is handled by the Stacked Router defined in app.router.dart."
+  "sequence_diagram": "@startuml\nactor User\nparticipant main\nparticipant AppView\nparticipant StartupView\nparticipant StartupViewModel\nparticipant HomeView\nparticipant HomeViewModel\nparticipant CalculatorRepository\nparticipant CalculatorService\n\nUser -> main: Launch app\nmain -> AppView: Create and run\nAppView -> StartupView: Initialize\nStartupView -> StartupViewModel: Run startup logic\nStartupViewModel -> CalculatorRepository: Check if app is launched for the first time\nCalculatorRepository -> CalculatorService: Perform initial calculations\nStartupViewModel -> HomeView: Navigate on completion\nHomeView -> HomeViewModel: Initialize\nUser -> HomeView: Enter expression\nHomeView -> HomeViewModel: Handle expression input\nHomeViewModel -> CalculatorRepository: Calculate expression result\nCalculatorRepository -> CalculatorService: Perform calculation\nCalculatorService -> CalculatorRepository: Return calculation result\nCalculatorRepository -> HomeViewModel: Receive calculation result\nHomeViewModel -> HomeView: Update UI with result\nUser -> HomeView: Request dialog or bottom sheet\nHomeView -> HomeViewModel: Handle user request\nHomeViewModel -> DialogService: Show dialog\nHomeViewModel -> BottomSheetService: Show bottom sheet\n@enduml",
+  "state_management_flow": "The application uses the Stacked architecture for state management. The view models (e.g., HomeViewModel, StartupViewModel) handle the business logic and state for their respective views. The view models interact with the CalculatorRepository, which serves as a mediator between the UI and the CalculatorService. This separation of concerns allows for better testability, maintainability, and scalability of the application.",
+  "navigation_flow": "The application's navigation is managed using the Stacked Router, which is defined in the app.router.dart file. The main entry point, main.dart, sets up the app and runs the AppView, which initializes the Stacked architecture and displays the StartupView. After completing the startup logic, the StartupViewModel navigates to the HomeView. Within the HomeView, the user can interact with the calculator, and the HomeViewModel handles user actions, such as showing dialogs or bottom sheets, by utilizing the DialogService and BottomSheetService provided by the Stacked architecture."
 }
